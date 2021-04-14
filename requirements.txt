@@ -27,7 +27,6 @@ promise==2.3
 py==1.10.0
 pydantic==1.8.1
 pyparsing==2.4.7
-pytest==6.2.3
 python-dotenv==0.17.0
 python-multipart==0.0.5
 PyYAML==5.4.1
