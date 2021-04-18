@@ -32,8 +32,8 @@ def post_method():
 
 @app.get("/auth", status_code = 401)
 def get_auth(password: str, password_hash: str, response: Response):
-    # password = authentication.get("password")
-    # password_hash = authentication.get("password_hash")
+    if password == "" or password_hash == "":
+        return
     if hashlib.sha512(str(password).encode('utf-8')).hexdigest() == password_hash:
         response.status_code = 204
 
