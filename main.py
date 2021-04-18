@@ -46,6 +46,8 @@ def post_register(data: dict, response: Response):
     if name is None or surname is None:
         response.status_code = 422
         return
+    name = str(data.get("name"))
+    surname = str(data.get("surname"))
 
     app.id_counter += 1
     app.patients[app.id_counter] = {
@@ -60,7 +62,6 @@ def post_register(data: dict, response: Response):
 
 @app.get("/patient/{patient_id}", status_code=200)
 def get_patient(patient_id: int, response: Response):
-    print("\n\n\n\nHaloooo\n\n\n" + str(app.patients))
     if patient_id < 1:
         response.status_code = 400
         return
