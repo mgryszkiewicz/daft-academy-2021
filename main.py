@@ -62,8 +62,8 @@ def post_register(data: dict, response: Response):
 
     app.patients[app.id_counter] = {
         "id": app.id_counter,
-        "name": "Jan",
-        "surname": "Nowak",
+        "name": str(name),
+        "surname": str(surname),
         "register_date": datetime.datetime.today().strftime('%Y-%m-%d'),
         "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=shift)).strftime('%Y-%m-%d')
     }
