@@ -27,7 +27,7 @@ def delete_method():
 def post_method():
     return {"method": "POST"}
 
-@app.get("/auth{authentication}", status_code = 401)
+@app.get("/auth{password, password_hash}", status_code = 401)
 def get_auth(authentication, response: Response):
     password = authentication.get("password")
     password_hash = authentication.get("password_hash")
