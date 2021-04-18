@@ -7,36 +7,44 @@ app = FastAPI()
 app.id_counter = 0
 app.patients = dict()
 
+
 @app.get("/")
 def root():
     return {"message": "Hello world!"}
+
 
 @app.get("/method")
 def get_method():
     return {"method": "GET"}
 
+
 @app.put("/method")
 def put_method():
     return {"method": "PUT"}
+
 
 @app.options("/method")
 def options_method():
     return {"method": "OPTIONS"}
 
+
 @app.delete("/method")
 def delete_method():
     return {"method": "DELETE"}
+
 
 @app.post("/method", status_code=201)
 def post_method():
     return {"method": "POST"}
 
-@app.get("/auth", status_code = 401)
-def get_auth(response: Response, password: Optional[str] = "", password_hash: Optional[str] =  ""):
+
+@app.get("/auth", status_code=401)
+def get_auth(response: Response, password: Optional[str] = "", password_hash: Optional[str] = ""):
     if password == "" or password_hash == "":
         return
     if hashlib.sha512(str(password).encode('utf-8')).hexdigest() == password_hash:
         response.status_code = 204
+
 
 @app.post("/register", status_code=201)
 def post_register(data: dict, response: Response):
@@ -53,12 +61,12 @@ def post_register(data: dict, response: Response):
     app.id_counter += 1
 
     app.patients[app.id_counter] = {
-            "id": app.id_counter,
-            "name": "Jan",
-            "surname": "Nowak",
-            "register_date": datetime.datetime.today().strftime('%Y-%m-%d'),
-            "vaccination_date": datetime.datetime.today() + datetime.timedelta(days=shift).strftime('%Y-%m-%d')
-            }
+        "id": app.id_counter,
+        "name": "Jan",
+        "surname": "Nowak",
+        "register_date": datetime.datetime.today().strftime('%Y-%m-%d'),
+        "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=shift)).strftime('%Y-%m-%d')
+    }
     return app.patients[app.id_counter]
 
 
