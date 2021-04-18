@@ -27,10 +27,10 @@ def delete_method():
 def post_method():
     return {"method": "POST"}
 
-@app.get("/auth{password, password_hash}", status_code = 401)
-def get_auth(authentication, response: Response):
-    password = authentication.get("password")
-    password_hash = authentication.get("password_hash")
-    if hashlib.sha512(str(password).encode('utf-8').hexdigest()) == password_hash:
+@app.get("/auth", status_code = 401)
+def get_auth(password, password_hash, response: Response):
+    # password = authentication.get("password")
+    # password_hash = authentication.get("password_hash")
+    if hashlib.sha512(str(password).encode('utf-8')).hexdigest() == password_hash:
         response.status_code = 204
 
