@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Response, status
+from typing import Optional
 import datetime
 import hashlib
 
@@ -31,7 +32,7 @@ def post_method():
     return {"method": "POST"}
 
 @app.get("/auth", status_code = 401)
-def get_auth(password: str, password_hash: str, response: Response):
+def get_auth(response: Response, password: Optional[str] = "", password_hash: Optional[str] =  ""):
     if password == "" or password_hash == "":
         return
     if hashlib.sha512(str(password).encode('utf-8')).hexdigest() == password_hash:
