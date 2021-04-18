@@ -47,27 +47,17 @@ def post_register(data: dict, response: Response):
         response.status_code = 422
         return
 
-    if hasattr(name, '__iter__'):
-        name_string = ""
-        for i in name:
-            name_string += str(i)
-    else:
-        name_string = str(name)
-    
-    if hasattr(surname, '__iter__'):
-        surname_string = ""
-        for i in name:
-            surname_string += str(i)
-    else:
-        surname_string = str(name)
-
+    name_shift = sum(map(str.isalpha, str(name)))
+    surname_shift = sum(map(str.isalpha, str(surname)))
+    shift = surname_shift + name_shift
     app.id_counter += 1
+
     app.patients[app.id_counter] = {
             "id": app.id_counter,
-            "name": name_string,
-            "surname": surname,
-            "register_date": (datetime.datetime.today()).strftime('%Y-%m-%d'),
-            "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=len(name_string) + len(surname_string))).strftime('%Y-%m-%d')
+            "name": "Jan",
+            "surname": "Nowak",
+            "register_date": datetime.datetime.today().strftime('%Y-%m-%d'),
+            "vaccination_date": datetime.datetime.today() + datetime.timedelta(days=shift).strftime('%Y-%m-%d')
             }
     return app.patients[app.id_counter]
 
