@@ -46,16 +46,28 @@ def post_register(data: dict, response: Response):
     if name is None or surname is None:
         response.status_code = 422
         return
-    name = str(data.get("name"))
-    surname = str(data.get("surname"))
+
+    if hasattr(name, '__iter__'):
+        name_string = ""
+        for i in name:
+            name_string += str(i)
+    else:
+        name_string = str(name)
+    
+    if hasattr(surname, '__iter__'):
+        surname_string = ""
+        for i in name:
+            surname_string += str(i)
+    else:
+        surname_string = str(name)
 
     app.id_counter += 1
     app.patients[app.id_counter] = {
             "id": app.id_counter,
-            "name": name,
+            "name": name_string,
             "surname": surname,
             "register_date": (datetime.datetime.today()).strftime('%Y-%m-%d'),
-            "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=len(name) + len(surname))).strftime('%Y-%m-%d')
+            "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=len(name_string) + len(surname_string))).strftime('%Y-%m-%d')
             }
     return app.patients[app.id_counter]
 
