@@ -1,15 +1,35 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, Depends, status, HTTPException, Cookie
 from fastapi.responses import HTMLResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import Optional
 from datetime import datetime
 # import hashlib
 
 app = FastAPI()
 
+security = HTTPBasic()
+
 
 @app.get("/hello", response_class=HTMLResponse)
-def root():
-    return '<h1>Hello! Today date is ' + str(datetime.today().strftime('%Y-%m-%d')) + ' </h1>'
+def hello():
+    return '<h1>Hello! Today date is ' + str(datetime.today().strftime('%Y-%m-%d')) + '</h1>'
+
+
+@app.post("/login_session")
+def login_session(*, response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    if not (credentials.username == '4dm1n' and credentials.password == 'NotSoSecurePa$$'):
+        raise HTTPException(status_code=401)
+
+    app.access_token = hash(datetime.now())
+    response.set_cookie(key="session_token", value=app.access_token)
+    return
+
+
+@app.post("/login_token")
+def login_token(*, response: Response, session_token: str = Cookie(None)):
+    if not (session_token == app.access_token):
+        raise HTTPException(status_code=401)
+    return {'session_token': app.access_token}
 
 
 # @app.get("/method")
