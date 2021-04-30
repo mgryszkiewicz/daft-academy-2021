@@ -29,7 +29,7 @@ def login_session(*, response: Response, credentials: HTTPBasicCredentials = Dep
 def login_token(*, response: Response, session_token: str = Cookie(None)):
     if not (session_token == app.access_token):
         raise HTTPException(status_code=401)
-    return {'session_token': app.access_token}
+    return {'token': app.access_token}
 
 
 # @app.get("/method")
