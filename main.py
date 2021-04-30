@@ -7,7 +7,7 @@ from datetime import datetime
 app = FastAPI()
 
 
-@app.get("/hello", response_class=HTMLRespone)
+@app.get("/hello", response_class=HTMLResponse)
 def root():
     return '<h1>Hello! Today date is ' + str(datetime.today().strftime('%Y-%m-%d')) + ' </h1>'
 
