@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Response, Depends, status, HTTPException, Cookie
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Response, Request, Depends, status, HTTPException, Cookie
+from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import Optional
 from datetime import datetime
@@ -34,6 +34,30 @@ def login_token(*, response: Response, credentials: HTTPBasicCredentials = Depen
 
     app.access_token_2 = hash(datetime.now())
     return {"token": app.access_token_2}
+
+
+@app.get("/welcome_session")
+def welcome_session(*, request: Request, session_token: str = Cookie(None)):
+    if not (session_token == app.access_token_1):
+        raise HTTPException(status_code=401)
+    if str(request.query_params.get("format")) == "json":
+        return JSONResponse(content={"message": "Welcome!"})
+    elif str(request.query_params.get("format")) == "html":
+        return HTMLResponse(content="<h1>Welcome!</h1>")
+    else:
+        return PlainTextResponse(content="Welcome")
+
+@app.get("welcome_token")
+def welcome_token(*, request: Request):
+    if not (str(request.query_params.get("token")) == app.access_token_2):
+       raise HTTPException(status_code=401) 
+    if str(request.query_params.get("format")) == "json":
+        return JSONResponse(content={"message": "Welcome!"})
+    elif str(request.query_params.get("format")) == "html":
+        return HTMLResponse(content="<h1>Welcome!</h1>")
+    else:
+        return PlainTextResponse(content="Welcome")
+    
 
 
 # @app.get("/method")
