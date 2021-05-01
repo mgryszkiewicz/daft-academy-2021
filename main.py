@@ -24,6 +24,7 @@ def login_session(*, response: Response, credentials: HTTPBasicCredentials = Dep
 
     new_access_token_1 = hash(datetime.now())
     app.access_token_1.append(str(new_access_token_1))
+    while len(app.access_token_1) > 3: app.access_token_1.pop(0)
     response.set_cookie(key="session_token", value=new_access_token_1)
     return
 
@@ -35,6 +36,7 @@ def login_token(*, response: Response, credentials: HTTPBasicCredentials = Depen
 
     new_access_token_2 = hash(datetime.now())
     app.access_token_2.append(str(new_access_token_2))
+    while len(app.access_token_2) > 3: app.access_token_2.pop(0)
     return {"token": new_access_token_2}
 
 
