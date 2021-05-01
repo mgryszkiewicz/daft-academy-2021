@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, Request, Depends, status, HTTPException, Cookie
-from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import Optional
 from datetime import datetime
@@ -49,6 +49,7 @@ def welcome_session(*, request: Request, session_token: str = Cookie(None)):
     else:
         return PlainTextResponse(content="Welcome!")
 
+
 @app.get("/welcome_token")
 def welcome_token(format: Optional[str] = "", token: Optional[str] = ""):
     if not (str(token) in app.access_token_2):
@@ -60,6 +61,31 @@ def welcome_token(format: Optional[str] = "", token: Optional[str] = ""):
     else:
         return PlainTextResponse(content="Welcome!")
     
+
+@app.delete("/logout_session")
+def logout_session(format: Optional[str] = "", session_token: str = Cookie(None)):
+    if not (str(session_token) in app.access_token_1):
+        raise HTTPException(status_code=401)
+    while session_token in app.access_token_1: app.access_token_1.remove(session_token)
+    return RedirectResponse("/logged_out?format=" + format, status_code=303)
+
+
+@app.delete("/logout_token")
+def logout_token(format: Optional[str] = "", token: Optional[str]):
+    if not (str(token) in app.access_token_2):
+        raise HTTPException(status_code=401)
+    while token in app.access_token_2: app.access_token_2.remove(token)
+    return RedirectResponse("/logged_out?format=" + format, status_code=303)
+
+
+@app.get("/logged_out")
+def logged_out(format: Optional[str] = ""):
+    if format == "json":
+        return JSONResponse(content={"message": "Logged out!"})
+    elif format == "html":
+        return HTMLResponse(content="<h1>Logged out!</h1>")
+    else:
+        return PlainTextResponse(content="Logged out!")
 
 
 # @app.get("/method")
