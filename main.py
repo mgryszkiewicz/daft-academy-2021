@@ -38,7 +38,11 @@ def login_token(*, response: Response, credentials: HTTPBasicCredentials = Depen
 
 @app.get("/welcome_session")
 def welcome_session(*, request: Request, session_token: str = Cookie(None)):
-    if not (session_token == app.access_token_1):
+    print(session_token)
+    print(type(session_token))
+    print(str(app.access_token_1))
+    print(str(request.query_params.get("format")))
+    if not (session_token == str(app.access_token_1)):
         raise HTTPException(status_code=401)
     if str(request.query_params.get("format")) == "json":
         return JSONResponse(content={"message": "Welcome!"})
@@ -48,12 +52,14 @@ def welcome_session(*, request: Request, session_token: str = Cookie(None)):
         return PlainTextResponse(content="Welcome")
 
 @app.get("/welcome_token")
-def welcome_token(*, request: Request):
-    if not (str(request.query_params.get("token")) == app.access_token_2):
+def welcome_token(format: Optional[str] = "", token: Optional[str] = ""):
+    print(token)
+    print(format)
+    if not (token == str(app.access_token_2)):
        raise HTTPException(status_code=401) 
-    if str(request.query_params.get("format")) == "json":
+    if format == "json":
         return JSONResponse(content={"message": "Welcome!"})
-    elif str(request.query_params.get("format")) == "html":
+    elif format == "html":
         return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
         return PlainTextResponse(content="Welcome")
