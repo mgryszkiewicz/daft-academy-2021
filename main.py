@@ -71,7 +71,7 @@ def logout_session(format: Optional[str] = "", session_token: str = Cookie(None)
 
 
 @app.delete("/logout_token")
-def logout_token(format: Optional[str] = "", token: Optional[str]):
+def logout_token(token: Optional[str], format: Optional[str] = ""):
     if not (str(token) in app.access_token_2):
         raise HTTPException(status_code=401)
     while token in app.access_token_2: app.access_token_2.remove(token)
