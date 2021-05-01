@@ -47,7 +47,7 @@ def welcome_session(*, request: Request, session_token: str = Cookie(None)):
     else:
         return PlainTextResponse(content="Welcome")
 
-@app.get("welcome_token")
+@app.get("/welcome_token")
 def welcome_token(*, request: Request):
     if not (str(request.query_params.get("token")) == app.access_token_2):
        raise HTTPException(status_code=401) 
