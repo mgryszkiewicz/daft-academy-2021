@@ -6,8 +6,8 @@ from datetime import datetime
 # import hashlib
 
 app = FastAPI()
-app.access_token_1 = hash(datetime.now())
-app.access_token_2 = hash(datetime.now())
+app.access_token_1 = [] #przerobić to na liste i powinno śmigać
+app.access_token_2 = []
 
 security = HTTPBasic()
 
@@ -22,8 +22,9 @@ def login_session(*, response: Response, credentials: HTTPBasicCredentials = Dep
     if not (credentials.username == '4dm1n' and credentials.password == 'NotSoSecurePa$$'):
         raise HTTPException(status_code=401)
 
-    app.access_token_1 = hash(datetime.now())
-    response.set_cookie(key="session_token", value=app.access_token_1)
+    new_access_token_1 = hash(datetime.now())
+    app.access_token_1.append(str(new_access_token_1))
+    response.set_cookie(key="session_token", value=new_access_token_1)
     return
 
 
@@ -32,13 +33,14 @@ def login_token(*, response: Response, credentials: HTTPBasicCredentials = Depen
     if not (credentials.username == '4dm1n' and credentials.password == 'NotSoSecurePa$$'):
         raise HTTPException(status_code=401)
 
-    app.access_token_2 = hash(datetime.now())
-    return {"token": app.access_token_2}
+    new_access_token_2 = hash(datetime.now())
+    app.access_token_2.append(str(new_access_token_2))
+    return {"token": new_access_token_2}
 
 
 @app.get("/welcome_session")
 def welcome_session(*, request: Request, session_token: str = Cookie(None)):
-    if not (str(session_token) == str(app.access_token_1)):
+    if not (str(session_token) in app.access_token_1):
         raise HTTPException(status_code=401)
     if str(request.query_params.get("format")) == "json":
         return JSONResponse(content={"message": "Welcome!"})
@@ -49,7 +51,7 @@ def welcome_session(*, request: Request, session_token: str = Cookie(None)):
 
 @app.get("/welcome_token")
 def welcome_token(format: Optional[str] = "", token: Optional[str] = ""):
-    if not (str(token) == str(app.access_token_2)):
+    if not (str(token) in app.access_token_2):
        raise HTTPException(status_code=401) 
     if format == "json":
         return JSONResponse(content={"message": "Welcome!"})
