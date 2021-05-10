@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, HTTPException
 from typing import Optional
 import datetime
 import hashlib
@@ -36,6 +36,15 @@ async def customers():
     return {"customers": [{"id": row[0], "name": row[1], "full_address": "{} {} {} {}".format(row[2], row[3], row[4], row[5])} for row in customers]}
 
 
+@app.get("/products/{id}")
+async def products(id: int):
+    product = app.db_connection.execute('''SELECT ProductID, ProductName
+                                           FROM Products
+                                           WHERE ProductID = :id
+                                           ''', {'id': id}).fetchone()
+    if product is None:
+        raise HTTPException(status_code=404)
+    return {"id": product[0], "name": product[1]}
 
 # @app.get("/")
 # def root():
