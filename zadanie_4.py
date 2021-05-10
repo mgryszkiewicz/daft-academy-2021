@@ -70,11 +70,6 @@ async def employees(limit: Optional[int]=None, offset: Optional[int]=None, order
     return {"employees": [{"id": row[0], "last_name": row[1], "first_name": row[2], "city": row[3]} for row in employees]}
 
 
-@app.get("/")
-async def main():
-    app.db_connection.row_factory = sqlite3.Row
-    return app.db_connection.execute('''Select * From Categories''').fetchall()
-
 @app.get("/products_extended")
 async def products_extended():
     products_extended = app.db_connection.execute('''SELECT p.ProductID AS id, p.ProductName AS name, c.CategoryName AS category, s.CompanyName AS supplier
@@ -83,8 +78,21 @@ async def products_extended():
                                                      ON p.CategoryID = c.CategoryID
                                                      JOIN Suppliers AS s
                                                      ON p.SupplierID = s.SupplierID''')
-                                                     
+
     return {"products_extended": [{"id": row[0], "name": row[1], "category": row[2], "supplier": row[3]} for row in products_extended]}
+
+
+@app.get("/products/{id}/orders")
+async def products_orders(id: int):
+    products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, COUNT(od.OrderID) AS quantity, (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
+                                                    FROM Orders AS o
+                                                    JOIN Customers AS c
+                                                    ON o.CustomerID = c.CustomerID
+                                                    JOIN "Order Details" as od
+                                                    ON o.OrderID = od.OrderID
+                                                 ''')
+    return {"orders": [{"id": row[0], "customer": row[1], "quantity": row[2], "total_price": row[3]} for row in products_orders]}
+
 
 
 # @app.get("/")
