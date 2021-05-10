@@ -31,11 +31,11 @@ async def categories():
 async def customers():
     customers = app.db_connection.execute('''Select CustomerID AS id, CompanyName AS name, Address, PostalCode, City, Country
                                              FROM Customers
-                                             ORDER BY id
+                                             ORDER BY id COLLATE NOCASE
                                              ''')
     return {"customers": [{"id": row[0], "name": row[1], "full_adress": "{} {} {} {}".format(row[2], row[3], row[4], row[5])} for row in customers]}
 
-# @app.get("/customers")
+
 
 # @app.get("/")
 # def root():
