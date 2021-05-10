@@ -91,6 +91,8 @@ async def products_orders(id: int):
                                                     JOIN "Order Details" as od
                                                     ON o.OrderID = od.OrderID
                                                  ''')
+    if products_orders is None:
+        raise HTTPException(status_code=404)
     return {"orders": [{"id": row[0], "customer": row[1], "quantity": row[2], "total_price": row[3]} for row in products_orders]}
 
 
