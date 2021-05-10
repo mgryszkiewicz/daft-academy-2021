@@ -29,7 +29,7 @@ async def categories():
 
 @app.get("/customers")
 async def customers():
-    customers = app.db_connection.execute('''Select CustomerID AS id, CompanyName AS name, Address, PostalCode, City, Country
+    customers = app.db_connection.execute('''Select CustomerID AS id, CompanyName AS name, COALESCE(Address,''), COALESCE(PostalCode,''), COALESCE(City,''), COALESCE(Country,'')
                                              FROM Customers
                                              ORDER BY id COLLATE NOCASE
                                              ''')
