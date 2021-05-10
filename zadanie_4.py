@@ -3,6 +3,7 @@ from typing import Optional
 import datetime
 import hashlib
 import sqlite3
+import sys
 
 app = FastAPI()
 
@@ -45,6 +46,28 @@ async def products(id: int):
     if product is None:
         raise HTTPException(status_code=404)
     return {"id": product[0], "name": product[1]}
+
+
+@app.get("/employees")
+async def employees(limit: Optional[int]=None, offset: Optional[int]=None, order: Optional[str]=None):
+    if order not in ("first_name", "last_name", "city", None):
+        raise HTTPException(status_code=400)
+    if limit is None:
+        limit = sys.maxsize
+    if offset is None:
+        offset = 0
+    if order is None:
+        order = "id"
+    if limit < 0 or offset < 0:
+        raise HTTPException(status_code=400)
+
+    employees = app.db_connection.execute('''SELECT EmployeeID AS id, LastName AS last_name, FirstName AS first_name, City AS city
+                                             FROM Employees
+                                             ORDER BY {}
+                                             LIMIT :limit OFFSET :offset
+                                             '''.format(order), {'limit': limit, 'offset': offset})
+
+    return {"employees": [{"id": row[0], "last_name": row[1], "first_name": row[2], "city": row[3]} for row in employees]}
 
 # @app.get("/")
 # def root():
