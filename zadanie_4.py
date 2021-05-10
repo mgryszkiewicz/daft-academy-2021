@@ -69,6 +69,24 @@ async def employees(limit: Optional[int]=None, offset: Optional[int]=None, order
 
     return {"employees": [{"id": row[0], "last_name": row[1], "first_name": row[2], "city": row[3]} for row in employees]}
 
+
+@app.get("/")
+async def main():
+    app.db_connection.row_factory = sqlite3.Row
+    return app.db_connection.execute('''Select * From Categories''').fetchall()
+
+@app.get("/products_extended")
+async def products_extended():
+    products_extended = app.db_connection.execute('''SELECT p.ProductID AS id, p.ProductName AS name, c.CategoryName AS category, s.CompanyName AS supplier
+                                                     FROM Products AS p
+                                                     JOIN Categories AS c
+                                                     ON p.CategoryID = c.CategoryID
+                                                     JOIN Suppliers AS s
+                                                     ON p.SupplierID = s.SupplierID''')
+                                                     
+    return {"products_extended": [{"id": row[0], "name": row[1], "category": row[2], "supplier": row[3]} for row in products_extended]}
+
+
 # @app.get("/")
 # def root():
 #     return {"message": "Hello world!"}
