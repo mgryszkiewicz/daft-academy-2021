@@ -33,7 +33,7 @@ async def customers():
                                              FROM Customers
                                              ORDER BY id COLLATE NOCASE
                                              ''')
-    return {"customers": [{"id": row[0], "name": row[1], "full_adress": "{} {} {} {}".format(row[2], row[3], row[4], row[5])} for row in customers]}
+    return {"customers": [{"id": row[0], "name": row[1], "full_address": "{} {} {} {}".format(row[2], row[3], row[4], row[5])} for row in customers]}
 
 
 
