@@ -83,16 +83,19 @@ async def products_extended():
 
 
 @app.get("/products/{id}/orders")
-async def products_orders(id: int):
-    products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, COUNT(od.OrderID) AS quantity, (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
-                                                    FROM Orders AS o
-                                                    JOIN Customers AS c
-                                                    ON o.CustomerID = c.CustomerID
-                                                    JOIN "Order Details" as od
-                                                    ON o.OrderID = od.OrderID
-                                                 ''')
-    if products_orders is None:
+async def products_orders(id: int):                # (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
+    products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, COUNT(od.ProductID), (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
+                                                   FROM Orders AS o
+                                                   JOIN Customers AS c
+                                                   ON o.CustomerID = c.CustomerID
+                                                   JOIN "Order Details" as od
+                                                   ON o.OrderID = od.OrderID
+                                                   WHERE o.OrderID = :id                                                   
+                                                   GROUP BY od.ProductID                                              
+                                                   ''', {"id": id}).fetchall()
+    if products_orders is None or len(products_orders) == 0:
         raise HTTPException(status_code=404)
+    # return products_orders
     return {"orders": [{"id": row[0], "customer": row[1], "quantity": row[2], "total_price": row[3]} for row in products_orders]}
 
 
