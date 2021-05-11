@@ -25,6 +25,7 @@ async def shutdown():
 async def main():
     return {"sqlite3_library_version": sqlite3.version, "sqlite_version": sqlite3.sqlite_version}
 
+
 @app.get("/categories")
 async def categories():
     categories = app.db_connection.execute('''SELECT CategoryID AS id, CategoryName AS name
@@ -124,21 +125,26 @@ async def post_categories(category: Category):
 
 @app.put("/categories/{id}")
 async def put_categories(id: int, category: Category):
-    app.db_connection.execute('''
-                                 UPDATE Categories
-                                 SET CategoryName = :name
-                                 WHERE CategoryID = :id
-                              ''', {"name": category.name, "id": id})
-    updated_record = app.db_connection.execute('''
-                                                  SELECT *
-                                                  FROM Categories
-                                                  WHERE CategoryID = :id
-                                               ''', {"id": id}).fetchone()
+
+    cursor = app.db_connection.cursor()
+    cursor.execute('''
+                      UPDATE Categories
+                      SET CategoryName = :name
+                      WHERE CategoryID = :id
+                   ''', {"name": category.name, "id": id})
+
+    cursor.row_factory = sqlite3.Row
+
+    updated_record = cursor.execute('''
+                                       SELECT *
+                                       FROM Categories
+                                       WHERE CategoryID = :id
+                                    ''', {"id": id}).fetchone()
 
     if updated_record is None or len(updated_record) == 0:
         raise HTTPException(status_code=404)
 
-    return {"id": updated_record[0], "name": updated_record[1]}
+    return updated_record
 
 
 @app.delete("/categories/{id}")
