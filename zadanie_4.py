@@ -21,6 +21,10 @@ async def shutdown():
     app.db_connection.close()
 
 
+@app.get("/")
+async def main():
+    return {"sqlite3_library_version": sqlite3.version, "sqlite_version": sqlite3.sqlite_version}
+
 @app.get("/categories")
 async def categories():
     categories = app.db_connection.execute('''SELECT CategoryID AS id, CategoryName AS name
@@ -100,15 +104,15 @@ async def products_orders(id: int):
 
     return {"orders": [{"id": row[0], "customer": row[1], "quantity": row[2], "total_price": row[3]} for row in products_orders]}
 
+
 @app.post("/categories", status_code=201)
 async def post_categories(category: Category):
-    print(category.name)
     inserted_record = app.db_connection.execute('''
                                                    INSERT INTO Categories (CategoryName)
                                                    VALUES (:name)
                                                    RETURNING *
-                                                ''', {"name": category.name})
-    return inserted_record
+                                                ''', {"name": category.name}).fetchone()
+    return {"id": inserted_record[0], "name": inserted_record[1]}
 
 
 
