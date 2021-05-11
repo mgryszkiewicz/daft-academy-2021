@@ -107,84 +107,53 @@ async def products_orders(id: int):
 
 @app.post("/categories", status_code=201)
 async def post_categories(category: Category):
+    app.db_connection.execute('''
+                                INSERT INTO Categories (CategoryName)
+                                VALUES (:name)
+                                ''', {"name": category.name})
+
     inserted_record = app.db_connection.execute('''
-                                                   INSERT INTO Categories (CategoryName)
-                                                   VALUES (:name)
-                                                   RETURNING *
-                                                ''', {"name": category.name}).fetchone()
+                                                   SELECT CategoryID, CategoryName
+                                                   FROM Categories
+                                                   ORDER BY CategoryID DESC
+                                                   LIMIT 1
+                                                ''').fetchone()
+
     return {"id": inserted_record[0], "name": inserted_record[1]}
 
 
+@app.put("/categories/{id}")
+async def put_categories(id: int, category: Category):
+    app.db_connection.execute('''
+                                 UPDATE Categories
+                                 SET CategoryName = :name
+                                 WHERE CategoryID = :id
+                              ''', {"name": category.name, "id": id})
+    updated_record = app.db_connection.execute('''
+                                                  SELECT *
+                                                  FROM Categories
+                                                  WHERE CategoryID = :id
+                                               ''', {"id": id}).fetchone()
 
-# @app.get("/")
-# def root():
-#     return {"message": "Hello world!"}
+    if updated_record is None or len(updated_record) == 0:
+        raise HTTPException(status_code=404)
 
-
-# @app.get("/method")
-# def get_method():
-#     return {"method": "GET"}
-
-
-# @app.put("/method")
-# def put_method():
-#     return {"method": "PUT"}
-
-
-# @app.options("/method")
-# def options_method():
-#     return {"method": "OPTIONS"}
+    return {"id": updated_record[0], "name": updated_record[1]}
 
 
-# @app.delete("/method")
-# def delete_method():
-#     return {"method": "DELETE"}
+@app.delete("/categories/{id}")
+async def delete_categories(id: int):
+    deleted_record = app.db_connection.execute('''
+                                                  SELECT *
+                                                  FROM Categories
+                                                  WHERE CategoryID = :id
+                                               ''', {"id": id}).fetchone()
 
-
-# @app.post("/method", status_code=201)
-# def post_method():
-#     return {"method": "POST"}
-
-
-# @app.get("/auth", status_code=401)
-# def get_auth(response: Response, password: Optional[str] = "", password_hash: Optional[str] = ""):
-#     if password == "" or password_hash == "":
-#         return
-#     if hashlib.sha512(str(password).encode('utf-8')).hexdigest() == password_hash:
-#         response.status_code = 204
-
-
-# @app.post("/register", status_code=201)
-# def post_register(data: dict, response: Response):
-#     name = data.get("name")
-#     surname = data.get("surname")
-
-#     if name is None or surname is None:
-#         response.status_code = 422
-#         return
-
-#     name_shift = sum(map(str.isalpha, str(name)))
-#     surname_shift = sum(map(str.isalpha, str(surname)))
-#     shift = surname_shift + name_shift
-#     app.id_counter += 1
-
-#     app.patients[app.id_counter] = {
-#         "id": app.id_counter,
-#         "name": str(name),
-#         "surname": str(surname),
-#         "register_date": datetime.datetime.today().strftime('%Y-%m-%d'),
-#         "vaccination_date": (datetime.datetime.today() + datetime.timedelta(days=shift)).strftime('%Y-%m-%d')
-#     }
-#     return app.patients[app.id_counter]
-
-
-# @app.get("/patient/{patient_id}", status_code=200)
-# def get_patient(patient_id: int, response: Response):
-#     if patient_id < 1:
-#         response.status_code = 400
-#         return
-#     elif patient_id not in app.patients:
-#         response.status_code = 404
-#         return
-#     else:
-#         return app.patients[patient_id]
+    if deleted_record is None or len(deleted_record) == 0:
+        raise HTTPException(status_code=404)
+    
+    app.db_connection.execute('''
+                                 DELETE FROM Categories
+                                 WHERE CategoryID = :id
+                              ''', {"id": id})
+    return {"deleted": 1}
