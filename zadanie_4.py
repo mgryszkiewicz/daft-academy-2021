@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Response, status, HTTPException
-from typing import Optional
-import datetime
-import hashlib
+from typing import NoReturn, Optional
+from pydantic import BaseModel
 import sqlite3
 import sys
 
 app = FastAPI()
+
+class Category(BaseModel):
+    name: str
 
 
 @app.on_event("startup")
@@ -83,7 +85,7 @@ async def products_extended():
 
 
 @app.get("/products/{id}/orders")
-async def products_orders(id: int):                # (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
+async def products_orders(id: int):
     products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, od.Quantity, ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
                                                    FROM Orders AS o
                                                    JOIN Customers AS c
@@ -92,10 +94,21 @@ async def products_orders(id: int):                # (od.UnitPrice * od.Quantity
                                                    ON o.OrderID = od.OrderID
                                                    WHERE od.ProductID = :id                                                                                                
                                                    ''', {"id": id}).fetchall()
+
     if products_orders is None or len(products_orders) == 0:
         raise HTTPException(status_code=404)
-    # return products_orders
+
     return {"orders": [{"id": row[0], "customer": row[1], "quantity": row[2], "total_price": row[3]} for row in products_orders]}
+
+@app.post("/categories", status_code=201)
+async def post_categories(category: Category):
+    print(category.name)
+    inserted_record = app.db_connection.execute('''
+                                                   INSERT INTO Categories (CategoryName)
+                                                   VALUES (:name)
+                                                   RETURNING *
+                                                ''', {"name": category.name})
+    return inserted_record
 
 
 
