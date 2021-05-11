@@ -84,7 +84,7 @@ async def products_extended():
 
 @app.get("/products/{id}/orders")
 async def products_orders(id: int):                # (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
-    products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, COUNT(od.ProductID), (od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)) AS total_price
+    products_orders = app.db_connection.execute('''SELECT o.OrderID AS id, c.CompanyName AS customer, COUNT(od.ProductID), ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
                                                    FROM Orders AS o
                                                    JOIN Customers AS c
                                                    ON o.CustomerID = c.CustomerID
