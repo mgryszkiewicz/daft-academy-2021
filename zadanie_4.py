@@ -144,7 +144,7 @@ async def put_categories(id: int, category: Category):
     if updated_record is None or len(updated_record) == 0:
         raise HTTPException(status_code=404)
 
-    return updated_record
+    return {"id": updated_record["CategoryID"], "name": updated_record["CategoryName"]} 
 
 
 @app.delete("/categories/{id}")
