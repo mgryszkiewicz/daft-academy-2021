@@ -10,16 +10,19 @@ class Category(BaseModel):
     name: str
 
 def text_factory_custom(text: str):
-    text = text.decode(errors="ignore")
+    text = text.decode(encoding='latin1')
     text = text.replace("\n", " ")
     while text[-1] == " ":
         text = text[:-1]
 
-    if text == "PB Knckebrd AB":
-        text = "PB Knäckebröd AB"
+    # if text == "PB Knckebrd AB":
+    #     text = "PB Knäckebröd AB"
 
-    if text == "Heli Swaren GmbH & Co. KG":
-        text = "Heli Süßwaren GmbH & Co. KG"
+    # if text == "Heli Swaren GmbH & Co. KG":
+    #     text = "Heli Süßwaren GmbH & Co. KG"
+
+    # if text == "Plutzer Lebensmittelgromrkte AG":
+    #     text =  "Plutzer Lebensmittelgroßmärkte AG"
 
     return text
 
