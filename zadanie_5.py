@@ -9,11 +9,23 @@ app = FastAPI()
 class Category(BaseModel):
     name: str
 
+def text_factory_custom(text: str):
+    text = text.decode(errors="ignore")
+    text.replace("\n", " ")
+    while text[-1] == " ":
+        text = text[:-1]
+
+    if text == "PB Knckebrd AB":
+        text = "PB Knäckebröd AB"
+
+    return text
+
+
 
 @app.on_event("startup")
 async def startup():
     app.db_connection = sqlite3.connect("northwind.db")
-    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
+    app.db_connection.text_factory = text_factory_custom
 
 
 @app.on_event("shutdown")
