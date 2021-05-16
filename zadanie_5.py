@@ -63,7 +63,7 @@ async def suppliers_products(id: int):
     if suppliers_products is None or len(suppliers_products) == 0:
         raise HTTPException(status_code=404)
 
-    return [{"ProductID": row[0], "ProductName": row[1], "Category": {"CategoryID": row[3], "CategoryName": row[4]}, "Discontinued": row[2]} for row in suppliers_products]
+    return [{"ProductID": row[0], "ProductName": row[1], "Category": {"CategoryID": row[3], "CategoryName": row[4]}, "Discontinued": int(row[2])} for row in suppliers_products]
 
 
 
