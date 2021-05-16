@@ -16,6 +16,16 @@ class Supplier(BaseModel):
     Country: Optional[str] = ""
     Phone: Optional[str] = ""
 
+class SupplierPut(BaseModel):
+    CompanyName: Optional[str] = ""
+    ContactName: Optional[str] = ""
+    ContactTitle: Optional[str] = ""
+    Address: Optional[str] = ""
+    City: Optional[str] = ""
+    PostalCode: Optional[str] = ""
+    Country: Optional[str] = ""
+    Phone: Optional[str] = ""
+
 
 def text_factory_custom(text: str):
     text = text.decode(encoding='latin1')
@@ -97,10 +107,35 @@ async def post_suppliers(supplier: Supplier):
         if suppliers[key] == "":
             suppliers[key] = None
 
-
     return suppliers
     
+
+@app.put("/suppliers/{id}")
+async def put_suppliers(id: int, supplier: SupplierPut):
+    supplier = dict(supplier)
+
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    row = cursor.execute('''SELECT * FROM Suppliers WHERE SupplierID = :id''', {"id": id}).fetchone()
+
+    for key in supplier:
+        if supplier[key] == "":
+            supplier[key] = row[key]
+        
     
+    supplier["id"] = id
+    app.db_connection.execute('''UPDATE Suppliers
+                                 SET CompanyName = :CompanyName, ContactName = :ContactName, ContactTitle = :ContactTitle, Address = :Address, City = :City, PostalCode = :PostalCode, Country = :Country, Phone = :Phone
+                                 WHERE SupplierID = :id''', supplier)
+
+    row = cursor.execute('''SELECT * FROM Suppliers WHERE SupplierID = :id''', {"id": id}).fetchone()
+
+    return row
+
+
+#                       UPDATE Categories
+#                       SET CategoryName = :name
+#                       WHERE CategoryID = :id
 
 
 
