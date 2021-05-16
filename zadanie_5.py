@@ -136,6 +136,19 @@ async def put_suppliers(id: int, supplier: SupplierPut):
     return row
 
 
+@app.delete("/suppliers/{id}", status_code=204)
+async def delete(id: int):
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    row = cursor.execute('''SELECT * FROM Suppliers WHERE SupplierID = :id''', {"id": id}).fetchone()
+
+    if row is None or len(row) == 0:
+        raise HTTPException(status_code=401)
+
+    cursor.execute("DELETE FROM Suppliers WHER SupplierID = :id", {"id": id})
+
+
+
 #                       UPDATE Categories
 #                       SET CategoryName = :name
 #                       WHERE CategoryID = :id
