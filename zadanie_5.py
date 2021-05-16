@@ -118,6 +118,9 @@ async def put_suppliers(id: int, supplier: SupplierPut):
     cursor.row_factory = sqlite3.Row
     row = cursor.execute('''SELECT * FROM Suppliers WHERE SupplierID = :id''', {"id": id}).fetchone()
 
+    if row is None or len(row) == 0:
+        raise HTTPException(status_code=404)
+
     for key in supplier:
         if supplier[key] == "":
             supplier[key] = row[key]
