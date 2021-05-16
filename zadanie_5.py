@@ -14,7 +14,7 @@ class Supplier(BaseModel):
     City: Optional[str] = ""
     PostalCode: Optional[str] = ""
     Country: Optional[str] = ""
-    Phone: Optional[str] = "" 
+    Phone: Optional[str] = ""
 
 
 def text_factory_custom(text: str):
@@ -76,6 +76,9 @@ async def suppliers_products(id: int):
 
 @app.post("/suppliers", status_code=201)
 async def post_suppliers(supplier: Supplier):
+    for atribute in supplier.__fields__:
+        if atribute == "":
+            atribute = None
     app.db_connection.execute('''
                                 INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, PostalCode, Country, Phone)
                                 VALUES (:CompanyName, :ContactName, :ContactTitle, :Address, :City, :PostalCode, :Country, :Phone)
@@ -88,6 +91,12 @@ async def post_suppliers(supplier: Supplier):
                                   FROM Suppliers
                                   ORDER BY SupplierID DESC
                                   LIMIT 1''').fetchone()
+
+    suppliers = dict(suppliers)
+    for key in suppliers:
+        if suppliers[key] == "":
+            suppliers[key] = None
+
 
     return suppliers
     
