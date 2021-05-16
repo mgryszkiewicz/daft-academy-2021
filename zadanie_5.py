@@ -11,7 +11,7 @@ class Category(BaseModel):
 
 def text_factory_custom(text: str):
     text = text.decode(errors="ignore")
-    text = stext.replace("\n", " ")
+    text = text.replace("\n", " ")
     while text[-1] == " ":
         text = text[:-1]
 
