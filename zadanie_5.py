@@ -6,17 +6,25 @@ import sys
 
 app = FastAPI()
 
-class Category(BaseModel):
-    name: str
+class Supplier(BaseModel):
+    CompanyName: str
+    ContactName: Optional[str] = ""
+    ContactTitle: Optional[str] = ""
+    Address: Optional[str] = ""
+    City: Optional[str] = ""
+    PostalCode: Optional[str] = ""
+    Country: Optional[str] = ""
+    Phone: Optional[str] = "" 
+
 
 def text_factory_custom(text: str):
     text = text.decode(encoding='latin1')
     text = text.replace("\n", " ")
-    while text[-1] == " ":
-        text = text[:-1]
+    if len(text) > 0:
+        while text[-1] == " ":
+            text = text[:-1]
 
     return text
-
 
 
 @app.on_event("startup")
@@ -65,6 +73,25 @@ async def suppliers_products(id: int):
 
     return [{"ProductID": row[0], "ProductName": row[1], "Category": {"CategoryID": row[3], "CategoryName": row[4]}, "Discontinued": int(row[2])} for row in suppliers_products]
 
+
+@app.post("/suppliers", status_code=201)
+async def post_suppliers(supplier: Supplier):
+    app.db_connection.execute('''
+                                INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, PostalCode, Country, Phone)
+                                VALUES (:CompanyName, :ContactName, :ContactTitle, :Address, :City, :PostalCode, :Country, :Phone)
+                                ''', {"CompanyName": supplier.CompanyName, "ContactName": supplier.ContactName, "ContactTitle": supplier.ContactTitle,
+                                      "Address": supplier.Address, "City": supplier.City, "PostalCode": supplier.PostalCode, "Country": supplier.Country, "Phone": supplier.Phone})
+                        
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    suppliers = cursor.execute('''SELECT *
+                                  FROM Suppliers
+                                  ORDER BY SupplierID DESC
+                                  LIMIT 1''').fetchone()
+
+    return suppliers
+    
+    
 
 
 
