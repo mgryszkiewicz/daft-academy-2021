@@ -15,15 +15,6 @@ def text_factory_custom(text: str):
     while text[-1] == " ":
         text = text[:-1]
 
-    # if text == "PB Knckebrd AB":
-    #     text = "PB Knäckebröd AB"
-
-    # if text == "Heli Swaren GmbH & Co. KG":
-    #     text = "Heli Süßwaren GmbH & Co. KG"
-
-    # if text == "Plutzer Lebensmittelgromrkte AG":
-    #     text =  "Plutzer Lebensmittelgroßmärkte AG"
-
     return text
 
 
@@ -57,6 +48,23 @@ async def suppliers_id(id: int):
     if suppliers_id is None:
         raise HTTPException(status_code=404)
     return suppliers_id
+
+
+@app.get("/suppliers/{id}/products")
+async def suppliers_products(id: int):
+    cursor = app.db_connection.cursor()
+    suppliers_products = cursor.execute('''SELECT ProductID, ProductName, Discontinued, p.CategoryID, CategoryName
+                                          FROM Products AS p
+                                          JOIN Categories AS c
+                                          ON p.CategoryID = c.CategoryID
+                                          WHERE SupplierID = :id
+                                          ORDER BY ProductID DESC                    
+                                       ''', {"id": id}).fetchall()
+    if suppliers_products is None or len(suppliers_products) == 0:
+        raise HTTPException(status_code=404)
+
+    return [{"ProductID": row[0], "ProductName": row[1], "Category": {"CategoryID": row[3], "CategoryName": row[4]}, "Discontinued": row[2]} for row in suppliers_products]
+
 
 
 
